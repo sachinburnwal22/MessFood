@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#000000" />
+
+    <title>Mess Coupon</title>
+    <link rel="stylesheet" href="style.css?v=2" />
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="header">
+        <span class="back-arrow">←</span>
+        <span class="title">Mess Coupon</span>
+        <span class="meal-history">Meal History</span>
+      </div>
+      <div class="profile-card">
+        <div class="profile-image">
+          <img src="shivam1.jpeg" alt="Profile Picture" />
+        </div>
+        <h2 class="name">Sachin Burnwal 12517332</h2>
+        <div class="info">
+          <p><strong>Father's Name</strong><br />Binod Barnwal (7395425856)</p>
+          <p><strong>Mother's Name</strong><br />Anita Devi (917395425856)</p>
+          <p>
+            <strong>Program Name</strong><br />P132:B.Tech. (Computer Science
+            and Engineering) (2023)
+          </p>
+          <p>
+            <strong>Hostel</strong><br />Boys Hostel-01-A813-Bed C (Standard Air
+            Cooled 4 Seater)
+          </p>
+        </div>
+      </div>
+      <div class="meal-options">
+        <p class="instruction">Tap on the meal name to scan and avail food.</p>
+        <button class="rate-us" onclick="openFeedback()">Rate Us</button>
+        <div class="buttons">
+          <button class="meal-btn" data-meal="Breakfast">Breakfast →</button>
+          <button class="meal-btn" data-meal="Lunch">Lunch →</button>
+          <button class="meal-btn" data-meal="Dinner">Dinner →</button>
+          <button class="meal-btn" data-meal="Tea">Tea →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal for scanning success -->
+    <div id="successModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Successfully Mess Enrolled!</h2>
+        <!-- <video class="success-gif" loop autoplay muted>
+          <source src="gif.mp4" type="video/mp4" />
+        </video> -->
+      </div>
+    </div>
+
+    <!-- Feedback Bottom Sheet Modal -->
+    <div id="feedbackModal" class="feedback-backdrop">
+      <div class="feedback-sheet">
+        <div class="feedback-header">
+          <div class="drag-handle"></div>
+          <span class="fh-title">Feedback</span>
+          <span class="fh-close" onclick="closeFeedback()">✕</span>
+        </div>
+
+        <div class="feedback-body">
+          <h2 class="fb-title">Mess Feedback</h2>
+          <p class="fb-subtext">Tell us how we did!</p>
+
+          <div class="star-rating" id="starRating">
+            <span class="star empty" data-value="1">★</span>
+            <span class="star empty" data-value="2">★</span>
+            <span class="star empty" data-value="3">★</span>
+            <span class="star empty" data-value="4">★</span>
+            <span class="star empty" data-value="5">★</span>
+          </div>
+
+          <p class="select-text">Tap to select meal type</p>
+
+          <div class="meal-type-pills" id="mealTypePills">
+            <button class="meal-pill" data-meal="Breakfast">Breakfast</button>
+            <button class="meal-pill active" data-meal="Lunch">Lunch</button>
+            <button class="meal-pill" data-meal="Tea">Tea</button>
+            <button class="meal-pill" data-meal="Dinner">Dinner</button>
+          </div>
+
+          <div class="feedback-list-heading">Feedback</div>
+
+          <div class="feedback-flat-list">
+            <div class="feedback-item" onclick="toggleCheckbox(this)">
+              <span>Overall excellent service</span>
+              <div class="custom-checkbox"></div>
+            </div>
+            <div class="feedback-item" onclick="toggleCheckbox(this)">
+              <span>On-time serving</span>
+              <div class="custom-checkbox"></div>
+            </div>
+            <div class="feedback-item" onclick="toggleCheckbox(this)">
+              <span>Sufficient quantity</span>
+              <div class="custom-checkbox"></div>
+            </div>
+            <div class="feedback-item" onclick="toggleCheckbox(this)">
+              <span>Staff was polite & helpful</span>
+              <div class="custom-checkbox"></div>
+            </div>
+            <div class="feedback-item" onclick="toggleCheckbox(this)">
+              <span>Neat & hygienic</span>
+              <div class="custom-checkbox"></div>
+            </div>
+            <div class="feedback-item" onclick="toggleCheckbox(this)">
+              <span>Food was tasty</span>
+              <div class="custom-checkbox"></div>
+            </div>
+          </div>
+
+          <button class="submit-btn" onclick="submitFeedback()">Submit</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Post-Submit Confirmation Dialog -->
+    <div id="confirmationModal" class="confirmation-backdrop">
+      <div class="confirmation-card">
+        <div class="confirmation-title">Message</div>
+        <div class="confirmation-body">
+          Thank you for your feedback! Your input helps improve the mess
+          service.
+        </div>
+        <button class="confirmation-ok-btn" onclick="closeConfirmation()">
+          OK
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal for QR scanner -->
+    <div id="scannerModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <div id="scanner" class="scanner"></div>
+
+        <!-- Clean Full-Screen Scanner Overlay -->
+        <div class="scan-overlay">
+          <div class="scan-frame" id="scanFrame">
+            <div class="red-scan-line"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QR Code Library -->
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <!-- Main JavaScript -->
+    <script src="main.js?v=2"></script>
+
+    <script>
+      let currentRating = 0;
+
+      function setRating(rating) {
+        currentRating = rating;
+        const stars = document.querySelectorAll("#starRating .star");
+        stars.forEach((star, index) => {
+          if (index < rating) {
+            star.classList.remove("empty");
+          } else {
+            star.classList.add("empty");
+          }
+        });
+      }
+
+      function initFeedbackEvents() {
+        setRating(0);
+        const stars = document.querySelectorAll("#starRating .star");
+        stars.forEach((star) => {
+          star.addEventListener("click", () => {
+            const val = parseInt(star.getAttribute("data-value"), 10);
+            setRating(val);
+          });
+        });
+
+        const pills = document.querySelectorAll("#mealTypePills .meal-pill");
+        pills.forEach((pill) => {
+          pill.addEventListener("click", () => {
+            pills.forEach((p) => p.classList.remove("active"));
+            pill.classList.add("active");
+          });
+        });
+      }
+
+      function toggleCheckbox(element) {
+        const cb = element.querySelector(".custom-checkbox");
+        if (cb) {
+          cb.classList.toggle("checked");
+        }
+      }
+
+      function openFeedback() {
+        const modal = document.getElementById("feedbackModal");
+        if (modal) {
+          modal.classList.add("show");
+          document.body.style.overflow = "hidden";
+        }
+      }
+
+      function closeFeedback() {
+        const modal = document.getElementById("feedbackModal");
+        if (modal) {
+          modal.classList.remove("show");
+          document.body.style.overflow = "auto";
+        }
+      }
+
+      function submitFeedback() {
+        closeFeedback();
+        setTimeout(() => {
+          const confirmModal = document.getElementById("confirmationModal");
+          if (confirmModal) {
+            confirmModal.classList.add("show");
+            document.body.style.overflow = "hidden";
+          }
+        }, 200);
+      }
+
+      function closeConfirmation() {
+        const confirmModal = document.getElementById("confirmationModal");
+        if (confirmModal) {
+          confirmModal.classList.remove("show");
+          document.body.style.overflow = "auto";
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", initFeedbackEvents);
+    </script>
+  </body>
+</html>
